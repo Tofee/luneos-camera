@@ -18,6 +18,12 @@ Window {
 
         focus.focusMode: Camera.FocusContinuous
 
+        imageCapture {
+            onImageCaptured: {
+                lastCaptureImage.source = preview
+            }
+        }
+
         onError: console.warn("Camera ERROR " + errorCode + ": " + errorString);
     }
 
@@ -32,6 +38,11 @@ Window {
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
 
+        Image {
+            id: lastCaptureImage
+            height: Units.gu(8);
+            width: Units.gu(8);
+        }
         // Switch back/front
         Image {
             source: "images/flipcamera.svg"
@@ -57,7 +68,7 @@ Window {
                 onClicked: {
                     // capture the image!
                     camera.searchAndLock();
-
+                    camera.imageCapture.capture();
                 }
             }
         }
