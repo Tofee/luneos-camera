@@ -4,6 +4,8 @@ import QtMultimedia 5.5
 
 import LunaNext.Common 0.1
 
+import CameraApp 0.1
+
 Window {
     visible: true
 
@@ -20,6 +22,16 @@ Window {
 
         imageCapture {
             onImageCaptured: {
+                var outputPath =  StorageLocations.picturesLocation;
+
+                var dateAsString = new Date().toLocaleString(Qt.locale(), "yyyy-MM-dd-hh-mm-ss");
+                outputPath += dateAsString + ".png";
+
+                console.log("image storage : " + StorageLocations.picturesLocation);
+                console.log("Would like to copy " + preview + " to " + outputPath);
+
+                captureToLocation(outputPath);
+
                 lastCaptureImage.source = preview
             }
         }
