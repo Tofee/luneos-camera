@@ -8,12 +8,16 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
-# LuneOS version
-include(webOS/webOS)
-webos_modules_init(1 0 0 QUALIFIER RC3)
-webos_component(0 5 0)
+if(UNIX)
+    # LuneOS version
+    include(webOS/webOS)
+    webos_modules_init(1 0 0 QUALIFIER RC3)
+    webos_component(0 5 0)
 
-if("${WEBOS_INSTALL_ROOT}" STREQUAL "/usr/local/webos")
+    if("${WEBOS_INSTALL_ROOT}" STREQUAL "/usr/local/webos")
+        set(WEBOS_INSTALL_WEBOS_APPLICATIONSDIR ${CMAKE_CURRENT_BINARY_DIR})
+    endif()
+else()
     set(WEBOS_INSTALL_WEBOS_APPLICATIONSDIR ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
