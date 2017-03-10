@@ -22,39 +22,50 @@ Window {
 
         imageCapture {
             onImageCaptured: {
-                var outputPath =  StorageLocations.picturesLocation;
-
-                var dateAsString = new Date().toLocaleString(Qt.locale(), "yyyy-MM-dd-hh-mm-ss");
-                outputPath += dateAsString + ".png";
-
-                console.log("image storage : " + StorageLocations.picturesLocation);
-                console.log("Would like to copy " + preview + " to " + outputPath);
-
-                captureToLocation(outputPath);
-
                 lastCaptureImage.source = preview
             }
+        }
+        videoRecorder {
+            outputLocation: StorageLocations.videosLocation;
         }
 
         onError: console.warn("Camera ERROR " + errorCode + ": " + errorString);
     }
 
     VideoOutput {
+        id: videoOutputView
         source: camera
         anchors.fill: parent
         focus: visible
         fillMode: VideoOutput.PreserveAspectCrop
+    }
+    Rectangle {
+        anchors.fill: videoOutputView
+        color: "lightgreen"
+        opacity: 0.6
     }
 
     Row {
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
 
-        Image {
-            id: lastCaptureImage
+        Item {
             height: Units.gu(8);
             width: Units.gu(8);
+            Image {
+                id: lastCaptureImage
+                anchors.fill: parent
+                visible: false
+            }
+            CornerShader {
+                id: cornerShader
+                z: 2 // above image
+                anchors.fill: lastCaptureImage
+                sourceItem: lastCaptureImage
+                radius: 5*lastCaptureImage.height/90
+            }
         }
+
         // Switch back/front
         Image {
             source: "images/flipcamera.svg"
@@ -80,7 +91,13 @@ Window {
                 onClicked: {
                     // capture the image!
                     camera.searchAndLock();
-                    camera.imageCapture.capture();
+
+                    var outputPath =  StorageLocations.picturesLocation;
+                    var dateAsString = new Date().toLocaleString(Qt.locale(), "yyyy-MM-dd-hh-mm-ss");
+                    outputPath += "/" + dateAsString;
+
+                    console.log("image storage : " + outputPath);
+                    camera.imageCapture.captureToLocation(outputPath);
                 }
             }
         }

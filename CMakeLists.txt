@@ -8,6 +8,9 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
+# Configure camera output directory
+set(CAMERA_OUTPUT_DIR "/media/internal/camera")
+
 if(UNIX)
     # LuneOS version
     include(webOS/webOS)
@@ -15,14 +18,18 @@ if(UNIX)
     webos_component(0 5 0)
 
     if("${WEBOS_INSTALL_ROOT}" STREQUAL "/usr/local/webos")
+        # We are likely on a desktop
         set(WEBOS_INSTALL_WEBOS_APPLICATIONSDIR ${CMAKE_CURRENT_BINARY_DIR})
+        set(CAMERA_OUTPUT_DIR "/tmp/luneos-camera")
     endif()
 else()
+    # Windows, so desktop too
+    set(CAMERA_OUTPUT_DIR "C:/temp/luneos-camera")
     set(WEBOS_INSTALL_WEBOS_APPLICATIONSDIR ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
-
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden -Wall -std=c++0x")
+add_definitions(-DCAMERA_OUTPUT_DIR="${CAMERA_OUTPUT_DIR}")
 
 # Standard install paths. Needs to be set before finding packages.
 include(GNUInstallDirs)

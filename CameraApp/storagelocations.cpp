@@ -16,6 +16,8 @@
 
 #include "storagelocations.h"
 
+#include <QString>
+#include <QDir>
 #include <QCoreApplication>
 #include <QStandardPaths>
 #include <QStorageInfo>
@@ -27,12 +29,7 @@ StorageLocations::StorageLocations(QObject *parent) : QObject(parent)
 
 QString StorageLocations::picturesLocation() const
 {
-    QStringList locations = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
-    locations.insert(0, "/media/internal/camera/");
-    if (locations.isEmpty()) {
-        return QString();
-    }
-    QString location = locations.at(0) + "/" + QCoreApplication::applicationName();
+    QString location = CAMERA_OUTPUT_DIR;
     QDir dir;
     dir.mkpath(location);
     return location;
@@ -40,15 +37,8 @@ QString StorageLocations::picturesLocation() const
 
 QString StorageLocations::videosLocation() const
 {
-    QStringList locations = QStandardPaths::standardLocations(QStandardPaths::MoviesLocation);
-    if (locations.isEmpty()) {
-        return QString();
-    }
-    QString location = locations.at(0) + "/" + QCoreApplication::applicationName();
+    QString location = CAMERA_OUTPUT_DIR;
     QDir dir;
-    // Transition from old directory 'camera' to new one; see bug #1363112
-    // https://bugs.launchpad.net/ubuntu-ui-toolkit/+bug/1363112
-    dir.rename(locations.at(0) + "/" + "camera", location);
     dir.mkpath(location);
     return location;
 }
