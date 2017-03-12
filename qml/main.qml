@@ -1,10 +1,5 @@
 import QtQuick 2.6
 import QtQuick.Window 2.2
-import QtMultimedia 5.5
-
-import LunaNext.Common 0.1
-
-import CameraApp 0.1
 
 Window {
     visible: true
@@ -12,93 +7,32 @@ Window {
     width: 600
     height: 800
 
-    Camera {
-        id: camera
+    ListView {
+        id: switcherListView
 
-        captureMode: Camera.CaptureStillImage
-        position: Camera.BackFace
-
-        focus.focusMode: Camera.FocusContinuous
-
-        imageCapture {
-            onImageCaptured: {
-                lastCaptureImage.source = preview
-            }
-        }
-        videoRecorder {
-            outputLocation: StorageLocations.videosLocation;
-        }
-
-        onError: console.warn("Camera ERROR " + errorCode + ": " + errorString);
-    }
-
-    VideoOutput {
-        id: videoOutputView
-        source: camera
         anchors.fill: parent
-        focus: visible
-        fillMode: VideoOutput.PreserveAspectCrop
-    }
-    Rectangle {
-        anchors.fill: videoOutputView
-        color: "lightgreen"
-        opacity: 0.6
-    }
 
-    Row {
-        anchors.bottom: parent.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
+        boundsBehavior: ListView.StopAtBounds
+        orientation: ListView.Horizontal
+        currentIndex: 1
+        highlightFollowsCurrentItem: true
+        preferredHighlightBegin: 0
+        preferredHighlightEnd: switcherListView.width
+        highlightRangeMode: ListView.StrictlyEnforceRange
+        snapMode: ListView.SnapOneItem
 
-        Item {
-            height: Units.gu(8);
-            width: Units.gu(8);
-            Image {
-                id: lastCaptureImage
-                anchors.fill: parent
-                visible: false
+        model: VisualItemModel {
+            PreferencesView {
+                height: switcherListView.height; width: switcherListView.width
             }
-            CornerShader {
-                id: cornerShader
-                z: 2 // above image
-                anchors.fill: lastCaptureImage
-                sourceItem: lastCaptureImage
-                radius: 5*lastCaptureImage.height/90
+            CameraView {
+                height: switcherListView.height; width: switcherListView.width
+
+                onCaptureDone: galleryView.addFileToGallery(filepath);
             }
-        }
-
-        // Switch back/front
-        Image {
-            source: "images/flipcamera.svg"
-            height: Units.gu(5);
-            width: Units.gu(5);
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    camera.cameraState = Camera.LoadedState;
-                    camera.position = (camera.position === Camera.BackFace) ? Camera.FrontFace : Camera.BackFace
-                    camera.cameraState = Camera.ActiveState;
-                }
-            }
-        }
-
-        // take a photo
-        Image {
-            source: "images/shutter.svg"
-            height: Units.gu(8);
-            width: Units.gu(8);
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    // capture the image!
-                    camera.searchAndLock();
-
-                    var outputPath =  StorageLocations.picturesLocation;
-                    var dateAsString = new Date().toLocaleString(Qt.locale(), "yyyy-MM-dd-hh-mm-ss");
-                    outputPath += "/" + dateAsString;
-
-                    console.log("image storage : " + outputPath);
-                    camera.imageCapture.captureToLocation(outputPath);
-                }
+            GalleryView {
+                id: galleryView
+                height: switcherListView.height; width: switcherListView.width
             }
         }
     }
