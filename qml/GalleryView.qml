@@ -1,20 +1,69 @@
 import QtQuick 2.0
 
+import LunaNext.Common 0.1
+
+import "components"
+
 Rectangle {
     id: galleryViewItem
-
     color: "#343434"
 
-    function addFileToGallery(iPath)
-    {
-        fileModel.append({filepath: iPath});
-        console.log("file added: "+iPath);
+    property alias model: flowRepeater.model
+
+    signal exitGalleryView();
+
+    LuneOSButtonElement {
+        id: exitGalleryButton
+
+        width: parent.width
+        height: Units.gu(2)
+        imageSource: ""; text: "Exit Gallery"
+        checked: false
+
+        onClicked: galleryViewItem.exitGalleryView();
     }
 
-    ListModel {
-        id: fileModel
+    Flickable {
+        anchors.top: exitGalleryButton.bottom
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+
+        flickableDirection: Flickable.VerticalFlick
+        contentHeight: flowView.height
+
+        clip: true
+
+        Flow {
+            id: flowView
+            width: parent.width
+            spacing: Units.gu(0.5)
+
+            Repeater {
+                id: flowRepeater
+
+                delegate: Item {
+                    width: galleryViewItem.width/3 - flowView.spacing
+                    height: width
+                    Image {
+                        id: filePreviewImage
+                        anchors.fill: parent
+                        source: filepath
+                        visible: false
+                    }
+                    CornerShader {
+                        id: cornerShader
+                        z: 2 // above image
+                        anchors.fill: filePreviewImage
+                        sourceItem: filePreviewImage
+                        radius: 5*filePreviewImage.height/90
+                    }
+                }
+            }
+        }
     }
 
+/*
     Component {
         id: appDelegate
         Item {
@@ -50,12 +99,18 @@ Rectangle {
         anchors.fill: parent
 
         delegate: appDelegate
-        model: fileModel
 
         preferredHighlightBegin: 0.5
         preferredHighlightEnd: 0.5
         focus: true
 
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                console.log("click!");
+                galleryViewItem.exitGalleryView();
+            }
+        }
         path: Path {
             startX: galleryViewItem.width/2
             startY: 0
@@ -80,4 +135,5 @@ Rectangle {
 
         pathItemCount: 4
     }
+    */
 }

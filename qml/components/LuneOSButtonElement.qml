@@ -14,6 +14,8 @@ Item {
 
     property real margins: 6
 
+    signal clicked();
+
     opacity: enabled ? 1 : 0.2
 
     property bool _isFirst: Positioner.isFirstItem
@@ -66,6 +68,7 @@ Item {
             {
                 group.currentIndexInGroup = root.Positioner.index;
             }
+            root.clicked();
         }
     }
 }

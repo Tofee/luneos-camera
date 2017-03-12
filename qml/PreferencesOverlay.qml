@@ -5,7 +5,8 @@ import LunaNext.Common 0.1
 import "components"
 
 Rectangle {
-    color: "#E5E5E5"
+    color: "transparent"
+    //color: "#E5E5E5"
 
     // Possible preferences:
     //  - front/back
