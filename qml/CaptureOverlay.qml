@@ -8,10 +8,40 @@ import "components"
 
 Item {
     property Camera camera
+    property int captureTimeout: 0
+    property alias showGrid: bgGridImage.visible
 
     signal galleryButtonClicked();
     function setLastCapturedImage(preview) {
         lastCaptureImage.source = preview
+    }
+
+    function startCapture() {
+        camera.searchAndLock();
+
+        var outputPath =  StorageLocations.picturesLocation;
+        var dateAsString = new Date().toLocaleString(Qt.locale(), "yyyy-MM-dd-hh-mm-ss");
+        outputPath += "/" + dateAsString;
+
+        console.log("image storage : " + outputPath);
+
+        // start he capture !capture the image!
+        timeOutTimer.startTimeout(captureTimeout, function() {
+                camera.imageCapture.captureToLocation(outputPath);
+                camera.unlock();
+            }
+        );
+    }
+
+    TimeoutTimerText {
+        id: timeOutTimer
+        anchors.centerIn: parent
+    }
+
+    GridLines {
+        id: bgGridImage
+        anchors.fill: parent
+        visible: false
     }
 
     Row {
@@ -39,21 +69,6 @@ Item {
             }
         }
 
-        // Switch back/front
-        Image {
-            source: "images/flipcamera.svg"
-            height: Units.gu(5);
-            width: Units.gu(5);
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    camera.cameraState = Camera.LoadedState;
-                    camera.position = (camera.position === Camera.BackFace) ? Camera.FrontFace : Camera.BackFace
-                    camera.cameraState = Camera.ActiveState;
-                }
-            }
-        }
-
         // take a photo
         Image {
             source: "images/shutter.svg"
@@ -62,15 +77,7 @@ Item {
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
-                    // capture the image!
-                    camera.searchAndLock();
-
-                    var outputPath =  StorageLocations.picturesLocation;
-                    var dateAsString = new Date().toLocaleString(Qt.locale(), "yyyy-MM-dd-hh-mm-ss");
-                    outputPath += "/" + dateAsString;
-
-                    console.log("image storage : " + outputPath);
-                    camera.imageCapture.captureToLocation(outputPath);
+                    startCapture();
                 }
             }
         }

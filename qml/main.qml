@@ -41,7 +41,11 @@ Window {
 
                     model: VisualItemModel {
                         PreferencesOverlay {
+                            id: preferencesOverlay
                             height: switcherListView.height; width: switcherListView.width
+
+                            camera: cameraViewItem.cameraItem
+                            captureOverlay: captureOverlayItem
                         }
                         CaptureOverlay {
                             id: captureOverlayItem

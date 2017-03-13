@@ -1,4 +1,5 @@
 import QtQuick 2.0
+import QtMultimedia 5.5
 
 import LunaNext.Common 0.1
 
@@ -7,6 +8,9 @@ import "components"
 Rectangle {
     color: "transparent"
     //color: "#E5E5E5"
+
+    property Camera camera
+    property CaptureOverlay captureOverlay
 
     // Possible preferences:
     //  - front/back
@@ -32,6 +36,20 @@ Rectangle {
         property int isoQuality: 2
         /* 0: automatic, 1: sepia, 2:  */
         property int effect: 0
+
+        onSideChanged: {
+            if(side === 0) camera.position = Camera.FrontFace
+            else if(side === 1) camera.position = Camera.BackFace
+        }
+        onTimerChanged: {
+            if(timer === 0) captureOverlay.captureTimeout = 0
+            else if(timer === 1) captureOverlay.captureTimeout = 3
+            else if(timer === 2) captureOverlay.captureTimeout = 10
+            else if(timer === 3) captureOverlay.captureTimeout = 15
+        }
+        onGridChanged: {
+            captureOverlay.showGrid = (grid === 1);
+        }
     }
 
     Column {
@@ -48,6 +66,7 @@ Rectangle {
             ExclusiveGroup {
                 id: exclusiveGroupSide
                 currentIndexInGroup: prefs.side
+                onCurrentIndexInGroupChanged: prefs.side = currentIndexInGroup
             }
             LuneOSButtonElement {
                 height: parent.height
@@ -69,6 +88,7 @@ Rectangle {
             ExclusiveGroup {
                 id: exclusiveGroupTimer
                 currentIndexInGroup: prefs.timer
+                onCurrentIndexInGroupChanged: prefs.timer = currentIndexInGroup
             }
             LuneOSButtonElement {
                 height: parent.height
@@ -134,6 +154,7 @@ Rectangle {
             ExclusiveGroup {
                 id: exclusiveGroupGrid
                 currentIndexInGroup: prefs.grid
+                onCurrentIndexInGroupChanged: prefs.grid = currentIndexInGroup
             }
             LuneOSButtonElement {
                 height: parent.height
@@ -155,6 +176,7 @@ Rectangle {
             ExclusiveGroup {
                 id: exclusiveGroupPhotoVideo
                 currentIndexInGroup: prefs.photoVideo
+                onCurrentIndexInGroupChanged: prefs.photoVideo = currentIndexInGroup
             }
             LuneOSButtonElement {
                 height: parent.height
@@ -180,6 +202,7 @@ Rectangle {
             ExclusiveGroup {
                 id: exclusiveGroupFlash
                 currentIndexInGroup: prefs.flash
+                onCurrentIndexInGroupChanged: prefs.flash = currentIndexInGroup
             }
             LuneOSButtonElement {
                 height: parent.height
@@ -207,6 +230,7 @@ Rectangle {
             ExclusiveGroup {
                 id: exclusiveGroupQuality
                 currentIndexInGroup: prefs.isoQuality
+                onCurrentIndexInGroupChanged: prefs.isoQuality = currentIndexInGroup
             }
             LuneOSButtonElement {
                 height: parent.height
@@ -234,6 +258,7 @@ Rectangle {
             ExclusiveGroup {
                 id: exclusiveGroupEffect
                 currentIndexInGroup: prefs.effect
+                onCurrentIndexInGroupChanged: prefs.effect = currentIndexInGroup
             }
             LuneOSButtonElement {
                 height: parent.height
