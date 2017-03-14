@@ -68,17 +68,14 @@ Rectangle {
                 currentIndexInGroup: prefs.side
                 onCurrentIndexInGroupChanged: prefs.side = currentIndexInGroup
             }
-            LuneOSButtonElement {
-                height: parent.height
-                width: Units.gu(6)
-                imageSource: ""; text: "Front"
-                group: exclusiveGroupSide
-            }
-            LuneOSButtonElement {
-                height: parent.height
-                width: Units.gu(6)
-                imageSource: ""; text: "Back"
-                group: exclusiveGroupSide
+            Repeater {
+                model: [ "Front", "Back" ]
+                delegate: LuneOSButtonElement {
+                    height: parent.height
+                    width: Units.gu(6)
+                    imageSource: ""; text: modelData
+                    group: exclusiveGroupSide
+                }
             }
         }
         Row {
@@ -90,60 +87,21 @@ Rectangle {
                 currentIndexInGroup: prefs.timer
                 onCurrentIndexInGroupChanged: prefs.timer = currentIndexInGroup
             }
-            LuneOSButtonElement {
-                height: parent.height
-                width: height
-                imageSource: Qt.resolvedUrl("images/self_timer.svg");
-                group: exclusiveGroupTimer
+            Repeater {
+                model: [ "0s", "3s", "10s", "15s" ]
+                delegate:  LuneOSButtonElement {
+                    height: parent.height
+                    width: height
+                    imageSource: Qt.resolvedUrl("images/self_timer.svg");
+                    group: exclusiveGroupTimer
 
-                Text {
-                    anchors.bottom: parent.bottom
-                    anchors.right: parent.right
-                    text: "0"
-                    font.bold: true
-                    font.pixelSize: parent.height*0.3
-                }
-            }
-            LuneOSButtonElement {
-                height: parent.height
-                width: height
-                imageSource: Qt.resolvedUrl("images/self_timer.svg");
-                group: exclusiveGroupTimer
-
-                Text {
-                    anchors.bottom: parent.bottom
-                    anchors.right: parent.right
-                    text: "3"
-                    font.bold: true
-                    font.pixelSize: parent.height*0.3
-                }
-            }
-            LuneOSButtonElement {
-                height: parent.height
-                width: height
-                imageSource: Qt.resolvedUrl("images/self_timer.svg");
-                group: exclusiveGroupTimer
-
-                Text {
-                    anchors.bottom: parent.bottom
-                    anchors.right: parent.right
-                    text: "10"
-                    font.bold: true
-                    font.pixelSize: parent.height*0.3
-                }
-            }
-            LuneOSButtonElement {
-                height: parent.height
-                width: height
-                imageSource: Qt.resolvedUrl("images/self_timer.svg");
-                group: exclusiveGroupTimer
-
-                Text {
-                    anchors.bottom: parent.bottom
-                    anchors.right: parent.right
-                    text: "15"
-                    font.bold: true
-                    font.pixelSize: parent.height*0.3
+                    Text {
+                        anchors.bottom: parent.bottom
+                        anchors.right: parent.right
+                        text: modelData
+                        font.bold: true
+                        font.pixelSize: parent.height*0.3
+                    }
                 }
             }
         }
@@ -156,17 +114,14 @@ Rectangle {
                 currentIndexInGroup: prefs.grid
                 onCurrentIndexInGroupChanged: prefs.grid = currentIndexInGroup
             }
-            LuneOSButtonElement {
-                height: parent.height
-                width: Units.gu(6)
-                imageSource: ""; text: "None"
-                group: exclusiveGroupGrid
-            }
-            LuneOSButtonElement {
-                height: parent.height
-                width: height
-                imageSource: Qt.resolvedUrl("images/grid_lines.svg");
-                group: exclusiveGroupGrid
+            Repeater {
+                model: [ "", Qt.resolvedUrl("images/grid_lines.svg") ]
+                delegate: LuneOSButtonElement {
+                    height: parent.height
+                    width: Units.gu(6)
+                    imageSource: modelData; text: modelData === "" ? "None" : ""
+                    group: exclusiveGroupGrid
+                }
             }
         }
         Row {
@@ -178,21 +133,16 @@ Rectangle {
                 currentIndexInGroup: prefs.photoVideo
                 onCurrentIndexInGroupChanged: prefs.photoVideo = currentIndexInGroup
             }
-            LuneOSButtonElement {
+            Repeater {
+                model: [ Qt.resolvedUrl("images/shutter_stills@27.png"), Qt.resolvedUrl("images/record_video@27.png") ]
+                delegate: LuneOSButtonElement {
                 height: parent.height
-                width: parent.height
-                //width: Units.gu(6)
-                //imageSource: ""; text: "Photo"
-                imageSource: Qt.resolvedUrl("images/shutter_stills@27.png")
-                group: exclusiveGroupPhotoVideo
-            }
-            LuneOSButtonElement {
-                height: parent.height
-                width: parent.height
-                //width: Units.gu(6)
-                //imageSource: ""; text: "Photo"
-                imageSource: Qt.resolvedUrl("images/record_video@27.png")
-                group: exclusiveGroupPhotoVideo
+                    width: parent.height
+                    //width: Units.gu(6)
+                    //imageSource: ""; text: "Photo"
+                    imageSource: modelData
+                    group: exclusiveGroupPhotoVideo
+                }
             }
         }
         Row {
@@ -204,23 +154,19 @@ Rectangle {
                 currentIndexInGroup: prefs.flash
                 onCurrentIndexInGroupChanged: prefs.flash = currentIndexInGroup
             }
-            LuneOSButtonElement {
-                height: parent.height
-                width: Units.gu(6)
-                imageSource: ""; text: "Auto"
-                group: exclusiveGroupFlash
-            }
-            LuneOSButtonElement {
-                height: parent.height
-                width: Units.gu(9)
-                imageSource: ""; text: "No Flash"
-                group: exclusiveGroupFlash
-            }
-            LuneOSButtonElement {
-                height: parent.height
-                width: Units.gu(6)
-                imageSource: ""; text: "Flash"
-                group: exclusiveGroupFlash
+            Repeater {
+                model: ListModel {
+                    ListElement { width: 6; text: "Auto" }
+                    ListElement { width: 9; text: "No Flash" }
+                    ListElement { width: 6; text: "Flash" }
+                }
+
+                delegate: LuneOSButtonElement {
+                    height: parent.height
+                    width: Units.gu(model.width)
+                    imageSource: ""; text: model.text
+                    group: exclusiveGroupFlash
+                }
             }
         }
         Row {
@@ -232,23 +178,19 @@ Rectangle {
                 currentIndexInGroup: prefs.isoQuality
                 onCurrentIndexInGroupChanged: prefs.isoQuality = currentIndexInGroup
             }
-            LuneOSButtonElement {
-                height: parent.height
-                width: Units.gu(6)
-                imageSource: ""; text: "Low"
-                group: exclusiveGroupQuality
-            }
-            LuneOSButtonElement {
-                height: parent.height
-                width: Units.gu(9)
-                imageSource: ""; text: "Medium"
-                group: exclusiveGroupQuality
-            }
-            LuneOSButtonElement {
-                height: parent.height
-                width: Units.gu(6)
-                imageSource: ""; text: "High"
-                group: exclusiveGroupQuality
+            Repeater {
+                model: ListModel {
+                    ListElement { width: 6; text: "Low" }
+                    ListElement { width: 9; text: "Medium" }
+                    ListElement { width: 6; text: "High" }
+                }
+
+                delegate: LuneOSButtonElement {
+                    height: parent.height
+                    width: Units.gu(model.width)
+                    imageSource: ""; text: model.text
+                    group: exclusiveGroupQuality
+                }
             }
         }
         Row {
@@ -260,23 +202,19 @@ Rectangle {
                 currentIndexInGroup: prefs.effect
                 onCurrentIndexInGroupChanged: prefs.effect = currentIndexInGroup
             }
-            LuneOSButtonElement {
-                height: parent.height
-                width: Units.gu(6)
-                imageSource: ""; text: "Auto"
-                group: exclusiveGroupEffect
-            }
-            LuneOSButtonElement {
-                height: parent.height
-                width: Units.gu(9)
-                imageSource: ""; text: "Sepia"
-                group: exclusiveGroupEffect
-            }
-            LuneOSButtonElement {
-                height: parent.height
-                width: Units.gu(6)
-                imageSource: ""; text: "Cloudy"
-                group: exclusiveGroupEffect
+            Repeater {
+                model: ListModel {
+                    ListElement { width: 6; text: "Auto" }
+                    ListElement { width: 7; text: "Sepia" }
+                    ListElement { width: 9; text: "Cloudy" }
+                }
+
+                delegate: LuneOSButtonElement {
+                    height: parent.height
+                    width: Units.gu(model.width)
+                    imageSource: ""; text: model.text
+                    group: exclusiveGroupEffect
+                }
             }
         }
     }
