@@ -9,8 +9,7 @@ Rectangle {
     color: "transparent"
     //color: "#E5E5E5"
 
-    property Camera camera
-    property CaptureOverlay captureOverlay
+    property PreferencesModel preferencesModel;
 
     // Possible preferences:
     //  - front/back

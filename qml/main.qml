@@ -10,6 +10,10 @@ Window {
     width: 600
     height: 800
 
+    PreferencesModel {
+        id: preferences
+    }
+
     StackView {
         id: stackView
 
@@ -44,14 +48,15 @@ Window {
                             id: preferencesOverlay
                             height: switcherListView.height; width: switcherListView.width
 
-                            camera: cameraViewItem.cameraItem
-                            captureOverlay: captureOverlayItem
+                            preferencesModel: preferences
                         }
                         CaptureOverlay {
                             id: captureOverlayItem
 
                             height: switcherListView.height; width: switcherListView.width
+
                             camera: cameraViewItem.cameraItem
+                            preferencesModel: preferences
 
                             onGalleryButtonClicked: stackView.push(galleryViewComp);
                         }
