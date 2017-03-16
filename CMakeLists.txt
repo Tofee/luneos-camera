@@ -10,22 +10,26 @@ set(CMAKE_AUTOMOC ON)
 
 # Configure camera output directory
 set(CAMERA_OUTPUT_DIR "/media/internal/camera")
+set(APP_DIR ${CMAKE_CURRENT_BINARY_DIR}/org.webosports.app.camera)
 
 if(UNIX)
-    # LuneOS version
-    include(webOS/webOS)
-    webos_modules_init(1 0 0 QUALIFIER RC3)
-    webos_component(0 5 0)
+    set(CAMERA_OUTPUT_DIR "/tmp/luneos-camera")
 
-    if("${WEBOS_INSTALL_ROOT}" STREQUAL "/usr/local/webos")
-        # We are likely on a desktop
-        set(WEBOS_INSTALL_WEBOS_APPLICATIONSDIR ${CMAKE_CURRENT_BINARY_DIR})
-        set(CAMERA_OUTPUT_DIR "/tmp/luneos-camera")
+    include(webOS/webOS OPTIONAL RESULT_VARIABLE FOUND_WEBOS_MODULE_PATH)
+    if(NOT "${FOUND_WEBOS_MODULE_PATH}" STREQUAL "NOTFOUND")
+        # LuneOS version
+        webos_modules_init(1 0 0 QUALIFIER RC3)
+        webos_component(0 5 0)
+
+        # also check that the root path is not the fallback one
+        if(NOT "${WEBOS_INSTALL_ROOT}" STREQUAL "/usr/local/webos")
+            set(APP_DIR ${WEBOS_INSTALL_WEBOS_APPLICATIONSDIR}/org.webosports.app.camera)
+            set(CAMERA_OUTPUT_DIR "/media/internal/camera")
+        endif()
     endif()
 else()
     # Windows, so desktop too
     set(CAMERA_OUTPUT_DIR "C:/temp/luneos-camera")
-    set(WEBOS_INSTALL_WEBOS_APPLICATIONSDIR ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden -Wall -std=c++0x")
@@ -39,11 +43,11 @@ find_package(Qt5Quick)
 find_package(Qt5Multimedia)
 find_package(Qt5Gui)
 
-set(APP_DIR ${WEBOS_INSTALL_WEBOS_APPLICATIONSDIR}/org.webosports.app.camera)
 set(APP_DATA appinfo.json icon.png icon-256x256.png)
 set(PLUGIN_DIR ${APP_DIR}/CameraApp)
 
 message(STATUS "APP_DIR=${APP_DIR}")
+message(STATUS "CAMERA_OUTPUT_DIR=${CAMERA_OUTPUT_DIR}")
 
 install(FILES ${APP_DATA} DESTINATION ${APP_DIR})
 install(DIRECTORY qml DESTINATION ${APP_DIR})
