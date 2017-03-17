@@ -10,24 +10,8 @@ Rectangle {
 
     property alias model: flowRepeater.model
 
-    signal exitGalleryView();
-
-    LuneOSButtonElement {
-        id: exitGalleryButton
-
-        width: parent.width
-        height: Units.gu(2)
-        imageSource: ""; text: "Exit Gallery"
-        checked: false
-
-        onClicked: galleryViewItem.exitGalleryView();
-    }
-
     Flickable {
-        anchors.top: exitGalleryButton.bottom
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
+        anchors.fill: parent
 
         flickableDirection: Flickable.VerticalFlick
         contentHeight: flowView.height

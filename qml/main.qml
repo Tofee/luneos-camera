@@ -13,76 +13,68 @@ Window {
     PreferencesModel {
         id: preferences
     }
+    /* Model of the captured phots/videos during this session */
+    ListModel {
+        id: capturedFilesModel
 
-    StackView {
-        id: stackView
+        function addFileToGallery(iPath)
+        {
+            capturedFilesModel.append({filepath: iPath});
+            console.log("file added: "+iPath);
+        }
+    }
+
+    CameraView {
+        id: cameraViewItem
+
+        width: parent.width
+        height: parent.height
+
+        y: 0
+        x: switcherListView.contentX > switcherListView.width ? switcherListView.width - switcherListView.contentX : 0
+
+        prefs: preferences
+
+        onImageCaptured: captureOverlayItem.setLastCapturedImage(preview);
+        onCaptureDone: capturedFilesModel.addFileToGallery(filepath);
+    }
+
+    ListView {
+        id: switcherListView
 
         anchors.fill: parent
-        initialItem: mainView
 
-        Component {
-            id: mainView
+        boundsBehavior: ListView.StopAtBounds
+        orientation: ListView.Horizontal
+        currentIndex: 1
+        highlightFollowsCurrentItem: true
+        preferredHighlightBegin: 0
+        preferredHighlightEnd: switcherListView.width
+        highlightRangeMode: ListView.StrictlyEnforceRange
+        snapMode: ListView.SnapOneItem
 
-            CameraView {
-                id: cameraViewItem
+        model: VisualItemModel {
+            PreferencesOverlay {
+                id: preferencesOverlay
+                height: switcherListView.height; width: switcherListView.width
 
-                onImageCaptured: captureOverlayItem.setLastCapturedImage(preview);
-                onCaptureDone: capturedFilesModel.addFileToGallery(filepath);
-
-                ListView {
-                    id: switcherListView
-
-                    anchors.fill: parent
-
-                    boundsBehavior: ListView.StopAtBounds
-                    orientation: ListView.Horizontal
-                    currentIndex: 1
-                    highlightFollowsCurrentItem: true
-                    preferredHighlightBegin: 0
-                    preferredHighlightEnd: switcherListView.width
-                    highlightRangeMode: ListView.StrictlyEnforceRange
-                    snapMode: ListView.SnapOneItem
-
-                    model: VisualItemModel {
-                        PreferencesOverlay {
-                            id: preferencesOverlay
-                            height: switcherListView.height; width: switcherListView.width
-
-                            preferencesModel: preferences
-                        }
-                        CaptureOverlay {
-                            id: captureOverlayItem
-
-                            height: switcherListView.height; width: switcherListView.width
-
-                            camera: cameraViewItem.cameraItem
-                            preferencesModel: preferences
-
-                            onGalleryButtonClicked: stackView.push(galleryViewComp);
-                        }
-                    }
-                }
+                prefs: preferences
             }
-        }
+            CaptureOverlay {
+                id: captureOverlayItem
+                height: switcherListView.height; width: switcherListView.width
 
-        /* Model of the captured phots/videos during this session */
-        ListModel {
-            id: capturedFilesModel
+                camera: cameraViewItem.cameraItem
+                prefs: preferences
 
-            function addFileToGallery(iPath)
-            {
-                capturedFilesModel.append({filepath: iPath});
-                console.log("file added: "+iPath);
+                onGalleryButtonClicked: switcherListView.currentIndex = 2
             }
-        }
-        /* Gallery component to visualize this session's captured media */
-        Component {
-            id: galleryViewComp
+            /* Gallery component to visualize this session's captured media */
             GalleryView {
                 id: galleryView
+                height: switcherListView.height; width: switcherListView.width
 
                 model: capturedFilesModel
-                onExitGalleryView: stackView.pop();
             }
         }
     }
