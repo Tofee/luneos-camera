@@ -8,8 +8,9 @@ import "components"
 
 Item {
     property Camera camera
-    property int captureTimeout: 0
-    property alias showGrid: bgGridImage.visible
+
+    property QtObject prefs;
+    property int captureTimeout: prefs.selfTimerDelay
 
     signal galleryButtonClicked();
     function setLastCapturedImage(preview) {
@@ -36,12 +37,6 @@ Item {
     TimeoutTimerText {
         id: timeOutTimer
         anchors.centerIn: parent
-    }
-
-    GridLines {
-        id: bgGridImage
-        anchors.fill: parent
-        visible: false
     }
 
     Row {

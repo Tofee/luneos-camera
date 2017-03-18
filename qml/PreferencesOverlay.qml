@@ -9,47 +9,7 @@ Rectangle {
     color: "transparent"
     //color: "#E5E5E5"
 
-    property PreferencesModel preferencesModel;
-
-    // Possible preferences:
-    //  - front/back
-    //  - timer
-    //  - grid
-    //  - photo/video
-    //  - flash
-    //  - ISO quality
-    //  - effect
-    QtObject {
-        id: prefs
-        /* 0: front, 1: back */
-        property int side: 1;
-        /* 0: 0s, 1: 3s, 2: 10s, 3: 15s */
-        property int timer: 0
-        /* 0: no grid, 1: grid */
-        property int grid: 0
-        /* 0: photo, 1: video */
-        property int photoVideo: 0
-        /* 0: automatic, 1: no flash, 2: flash */
-        property int flash: 0
-        /* 0: low, 1: medium, 2: high */
-        property int isoQuality: 2
-        /* 0: automatic, 1: sepia, 2:  */
-        property int effect: 0
-
-        onSideChanged: {
-            if(side === 0) camera.position = Camera.FrontFace
-            else if(side === 1) camera.position = Camera.BackFace
-        }
-        onTimerChanged: {
-            if(timer === 0) captureOverlay.captureTimeout = 0
-            else if(timer === 1) captureOverlay.captureTimeout = 3
-            else if(timer === 2) captureOverlay.captureTimeout = 10
-            else if(timer === 3) captureOverlay.captureTimeout = 15
-        }
-        onGridChanged: {
-            captureOverlay.showGrid = (grid === 1);
-        }
-    }
+    property QtObject prefs;
 
     Column {
         width: parent.width
@@ -64,8 +24,9 @@ Rectangle {
 
             ExclusiveGroup {
                 id: exclusiveGroupSide
-                currentIndexInGroup: prefs.side
-                onCurrentIndexInGroupChanged: prefs.side = currentIndexInGroup
+                readonly property var prefsMapping: [ Camera.FrontFace, Camera.BackFace ]
+                currentIndexInGroup: prefsMapping.indexOf(prefs.position);
+                onCurrentIndexInGroupChanged: prefs.position = prefsMapping[currentIndexInGroup]
             }
             Repeater {
                 model: [ "Front", "Back" ]
@@ -83,8 +44,9 @@ Rectangle {
 
             ExclusiveGroup {
                 id: exclusiveGroupTimer
-                currentIndexInGroup: prefs.timer
-                onCurrentIndexInGroupChanged: prefs.timer = currentIndexInGroup
+                readonly property var prefsMapping: [ 0, 3, 10, 15 ]
+                currentIndexInGroup: prefsMapping.indexOf(prefs.selfTimerDelay);
+                onCurrentIndexInGroupChanged: prefs.selfTimerDelay = prefsMapping[currentIndexInGroup]
             }
             Repeater {
                 model: [ "0s", "3s", "10s", "15s" ]
@@ -110,8 +72,9 @@ Rectangle {
 
             ExclusiveGroup {
                 id: exclusiveGroupGrid
-                currentIndexInGroup: prefs.grid
-                onCurrentIndexInGroupChanged: prefs.grid = currentIndexInGroup
+                readonly property var prefsMapping: [ false, true ]
+                currentIndexInGroup: prefsMapping.indexOf(prefs.gridEnabled);
+                onCurrentIndexInGroupChanged: prefs.gridEnabled = prefsMapping[currentIndexInGroup]
             }
             Repeater {
                 model: [ "", Qt.resolvedUrl("images/grid_lines.svg") ]
@@ -129,8 +92,9 @@ Rectangle {
 
             ExclusiveGroup {
                 id: exclusiveGroupPhotoVideo
-                currentIndexInGroup: prefs.photoVideo
-                onCurrentIndexInGroupChanged: prefs.photoVideo = currentIndexInGroup
+                readonly property var prefsMapping: [ Camera.CaptureStillImage, Camera.CaptureVideo ]
+                currentIndexInGroup: prefsMapping.indexOf(prefs.captureMode);
+                onCurrentIndexInGroupChanged: prefs.captureMode = prefsMapping[currentIndexInGroup]
             }
             Repeater {
                 model: [ Qt.resolvedUrl("images/shutter_stills@27.png"), Qt.resolvedUrl("images/record_video@27.png") ]
@@ -148,10 +112,13 @@ Rectangle {
             anchors.horizontalCenter: parent.horizontalCenter
             height: Units.gu(6)
 
+            visible: prefs.captureMode === Camera.CaptureStillImage
+
             ExclusiveGroup {
-                id: exclusiveGroupFlash
-                currentIndexInGroup: prefs.flash
-                onCurrentIndexInGroupChanged: prefs.flash = currentIndexInGroup
+                id: exclusiveGroupFlashPhoto
+                readonly property var prefsMapping: [ Camera.FlashAuto, Camera.FlashOff, Camera.FlashOn ]
+                currentIndexInGroup: prefsMapping.indexOf(prefs.flashMode);
+                onCurrentIndexInGroupChanged: prefs.flashMode = prefsMapping[currentIndexInGroup]
             }
             Repeater {
                 model: ListModel {
@@ -164,7 +131,7 @@ Rectangle {
                     height: parent.height
                     width: Units.gu(model.width)
                     imageSource: ""; text: model.text
-                    group: exclusiveGroupFlash
+                    group: exclusiveGroupFlashPhoto
                 }
             }
         }
@@ -172,22 +139,75 @@ Rectangle {
             anchors.horizontalCenter: parent.horizontalCenter
             height: Units.gu(6)
 
+            visible: prefs.captureMode === Camera.CaptureVideo
+
             ExclusiveGroup {
-                id: exclusiveGroupQuality
-                currentIndexInGroup: prefs.isoQuality
-                onCurrentIndexInGroupChanged: prefs.isoQuality = currentIndexInGroup
+                id: exclusiveGroupFlashVideo
+                readonly property var prefsMapping: [ Camera.FlashAuto, Camera.FlashOff, Camera.FlashOn ]
+                currentIndexInGroup: prefsMapping.indexOf(prefs.videoFlashMode);
+                onCurrentIndexInGroupChanged: prefs.videoFlashMode = prefsMapping[currentIndexInGroup]
             }
             Repeater {
                 model: ListModel {
-                    ListElement { width: 6; text: "Low" }
-                    ListElement { width: 9; text: "Medium" }
-                    ListElement { width: 6; text: "High" }
+                    ListElement { width: 6; text: "Auto" }
+                    ListElement { width: 9; text: "No Flash" }
+                    ListElement { width: 6; text: "Flash" }
                 }
 
                 delegate: LuneOSButtonElement {
                     height: parent.height
                     width: Units.gu(model.width)
                     imageSource: ""; text: model.text
+                    group: exclusiveGroupFlashVideo
+                }
+            }
+        }
+        Row {
+            id: photoOptionsRow
+            anchors.horizontalCenter: parent.horizontalCenter
+            height: Units.gu(6)
+
+            visible: prefs.captureMode === Camera.CaptureStillImage && prefs.photoResolutionOptionsModel.count>0
+
+            function sizeToMegapixels(size) {
+                var megapixels = (size.width * size.height) / 1000000;
+                return parseFloat(megapixels.toFixed(1))
+            }
+
+            function sizeToAspectRatio(size) {
+                var ratio = Math.max(size.width, size.height) / Math.min(size.width, size.height);
+                var maxDenominator = 12;
+                var epsilon;
+                var numerator;
+                var denominator;
+                var bestDenominator;
+                var bestEpsilon = 10000;
+                for (denominator = 2; denominator <= maxDenominator; denominator++) {
+                    numerator = ratio * denominator;
+                    epsilon = Math.abs(Math.round(numerator) - numerator);
+                    if (epsilon < bestEpsilon) {
+                        bestEpsilon = epsilon;
+                        bestDenominator = denominator;
+                    }
+                }
+                numerator = Math.round(ratio * bestDenominator);
+                return "%1:%2".arg(numerator).arg(bestDenominator);
+            }
+
+            ExclusiveGroup {
+                id: exclusiveGroupQuality
+                readonly property ListModel prefsMapping: prefs.photoResolutionOptionsModel
+                currentIndexInGroup: Math.max(prefsMapping.indexOf(prefs.photoResolution), 0);
+                onCurrentIndexInGroupChanged: prefs.setPhotoResolution(prefsMapping.get(currentIndexInGroup).resolution)
+            }
+            Repeater {
+                model: prefs.photoResolutionOptionsModel
+
+                delegate: LuneOSButtonElement {
+                    height: parent.height
+                    width: Units.gu(9)
+                    imageSource: ""; text: "%1 (%2MP)".arg(photoOptionsRow.sizeToAspectRatio(model.resolution))
+                                                      .arg(photoOptionsRow.sizeToMegapixels(model.resolution))
                     group: exclusiveGroupQuality
                 }
             }
