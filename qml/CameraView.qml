@@ -129,7 +129,7 @@ Item {
         focus: visible
         fillMode: VideoOutput.PreserveAspectCrop
 
-        orientation: camera.orientation
+        orientation: camera.position === Camera.BackFace ? -camera.orientation : camera.orientation
     }
     GridLines {
         anchors.fill: parent
