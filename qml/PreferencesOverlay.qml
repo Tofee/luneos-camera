@@ -1,16 +1,204 @@
 import QtQuick 2.0
 import QtMultimedia 5.5
+import QtQml.Models 2.2
 
 import LunaNext.Common 0.1
 
 import "components"
 
 Rectangle {
+    id: root
     color: "transparent"
     //color: "#E5E5E5"
 
     property QtObject prefs;
+    property var prefsMapping: ({
+        "flashMode": [ Camera.FlashAuto, Camera.FlashOff, Camera.FlashOn ],
+        "selfTimerDelay": [ 0, 3, 10, 15 ],
+        "position": [ Camera.FrontFace, Camera.BackFace ],
+        "gridEnabled": [ false, true ],
+        "captureMode": [ Camera.CaptureStillImage, Camera.CaptureVideo ],
+        "effectMode": [ 0, 1, 2, 3 ]
+    })
 
+    ListModel {
+        id: prefsMenuModel
+        ListElement { text: "" } // placeholder
+        ListElement {
+            text: "Flash"
+            prefsKey: "flashMode"
+            subMenuModel: [
+                ListElement { text: "Auto" },
+                ListElement { text: "Yes" },
+                ListElement { text: "No" }
+            ]
+        }
+        ListElement {
+            text: "";
+            imageUrl: "images/self_timer.svg"
+            prefsKey: "selfTimerDelay"
+            subMenuModel: [
+                ListElement { text: "None" },
+                ListElement { text: "3s"  },
+                ListElement { text: "10s" },
+                ListElement { text: "15s" }
+            ]
+        }
+        ListElement {
+            text: "Camera"
+            prefsKey: "position"
+            subMenuModel: [
+                ListElement { text: "Front" },
+                ListElement { text: "Back" }
+            ]
+        }
+        ListElement {
+            text: "";
+            imageUrl: "images/grid_lines.svg"
+            prefsKey: "gridEnabled"
+            subMenuModel: [
+                ListElement { text: "No" },
+                ListElement { text: ""; imageUrl: "images/grid_lines.svg" }
+            ]
+        }
+        ListElement {
+            text: "Type"
+            prefsKey: "captureMode"
+            subMenuModel: [
+                ListElement { text: ""; imageUrl: "images/shutter_stills@27.png" },
+                ListElement { text: ""; imageUrl: "images/record_video@27.png" }
+            ]
+        }
+        ListElement {
+            text: "Effect"
+            prefsKey: "effectMode"
+            subMenuModel: [
+                ListElement { text: "Auto" },
+                ListElement { text: "Cloudy" },
+                ListElement { text: "B&W" },
+                ListElement { text: "Sepia" }
+            ]
+        }
+        ListElement { text: "" } // placeholder
+    }
+
+    property real ringWidth: root.height*1.1 / 6.5
+
+    ListView {
+        id: menuScroller
+        anchors.fill: parent
+        model: prefsMenuModel
+        delegate: Item {
+            opacity: 0
+            width: menuScroller.width
+            height: menuScroller.height/6
+        }
+
+        boundsBehavior: Flickable.OvershootBounds
+
+        ExclusiveGroup {
+            id: exclusiveMainMenu
+            currentIndexInGroup: -1
+        }
+        Repeater {
+            anchors.verticalCenter: parent.verticalCenter
+            x: 0
+
+            model: prefsMenuModel
+            delegate: MenuItemRingArc {
+                y: (root.height-height)/2
+                height: root.height*0.8
+                width: height
+                x: -width/2*1.3
+
+                z: 2
+
+                ringWidth: root.ringWidth;
+
+                arcLength: Math.PI/6
+                arcOffset: -Math.PI/2 + index*arcLength - menuScroller.contentY*Math.PI/menuScroller.height
+
+                text: model.text
+                menuImageUrl: model.imageUrl !== "" ? Qt.resolvedUrl(model.imageUrl) : ""
+
+                group: exclusiveMainMenu
+                indexInGroup: index
+
+                onClicked: {
+                    exclusiveSubMenu.prefsKey = model.prefsKey;
+                    subMenuRepeater.model = model.subMenuModel;
+                }
+            }
+        }
+    }
+
+
+    Item {
+        id: subMenuItem
+
+        visible: !!subMenuRepeater.model
+
+        anchors.fill: parent
+        ExclusiveGroup {
+            id: exclusiveSubMenu
+            property string prefsKey: ""
+            onPrefsKeyChanged: currentIndexInGroup = root.prefsMapping[prefsKey].indexOf(prefs[prefsKey]);
+            currentIndexInGroup: -1
+            onCurrentIndexInGroupChanged: root.prefs[prefsKey] = root.prefsMapping[prefsKey][currentIndexInGroup]
+        }
+        Repeater {
+            id: subMenuRepeater
+            anchors.verticalCenter: parent.verticalCenter
+            x: 0
+
+            delegate: MenuItemRingArc {
+                y: (root.height-height)/2
+                height: root.height*0.8 + 2*root.height/6.5
+                width: height
+                x: -(root.height*0.8/2)*1.3 - root.height/6.5
+
+                z: 2
+
+                ringWidth: root.ringWidth*0.8;
+
+                arcLength: Math.PI/16
+                arcOffset: -arcLength*subMenuRepeater.count/2  + index*arcLength
+
+                text: model.text
+                menuImageUrl: model.imageUrl !== "" ? Qt.resolvedUrl(model.imageUrl) : ""
+
+                group: exclusiveSubMenu
+                indexInGroup: index
+            }
+        }
+    }
+/*
+    ListView {
+        id: subMenuListView
+        visible: false
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        x: root.height*1.1 - root.height/2*1.3 // put it on the right of the carroussel
+        width: root.width-x
+
+        boundsBehavior: Flickable.OvershootBounds
+
+        highlightRangeMode: ListView.StrictlyEnforceRange
+        highlightFollowsCurrentItem: true
+        preferredHighlightBegin: 0.5 * height - 10
+        preferredHighlightEnd: 0.5 * height + 10
+
+        highlight: Rectangle {
+            color: Qt.rgba(0,0,0.9,0.2)
+        }
+
+        delegate: Text {
+                font.pixelSize: 50
+                text: model.text
+            }
+    }
+*/
+    /*
     Column {
         width: parent.width
         spacing: Units.gu(0.5)
@@ -237,4 +425,5 @@ Rectangle {
             }
         }
     }
+    */
 }
