@@ -41,6 +41,29 @@ Item {
 
     Row {
         anchors.bottom: parent.bottom
+        anchors.left: parent.left
+
+        height: Units.gu(6)
+
+        ExclusiveGroup {
+            id: exclusiveGroupPhotoVideo
+            readonly property var prefsMapping: [ Camera.CaptureStillImage, Camera.CaptureVideo ]
+            currentIndexInGroup: prefsMapping.indexOf(prefs.captureMode);
+            onCurrentIndexInGroupChanged: prefs.captureMode = prefsMapping[currentIndexInGroup]
+        }
+        Repeater {
+            model: [ Qt.resolvedUrl("images/shutter_stills@27.png"), Qt.resolvedUrl("images/record_video@27.png") ]
+            delegate: LuneOSButtonElement {
+            height: parent.height
+                width: parent.height
+                imageSource: modelData
+                group: exclusiveGroupPhotoVideo
+            }
+        }
+    }
+
+    Row {
+        anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
 
         Item {
@@ -74,6 +97,29 @@ Item {
                 onClicked: {
                     startCapture();
                 }
+            }
+        }
+    }
+
+    Row {
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+
+        height: Units.gu(6)
+
+        ExclusiveGroup {
+            id: exclusiveGroupSide
+            readonly property var prefsMapping: [ Camera.FrontFace, Camera.BackFace ]
+            currentIndexInGroup: prefsMapping.indexOf(prefs.position);
+            onCurrentIndexInGroupChanged: prefs.position = prefsMapping[currentIndexInGroup]
+        }
+        Repeater {
+            model: [ "Front", "Back" ]
+            delegate: LuneOSButtonElement {
+                height: parent.height
+                width: Units.gu(6)
+                imageSource: ""; text: modelData
+                group: exclusiveGroupSide
             }
         }
     }
