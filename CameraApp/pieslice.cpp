@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QtCore/qmath.h>
 #include <QRadialGradient>
+#include <QDebug>
 
 MenuPieSlice::MenuPieSlice():
     mArcLength(30),
@@ -66,19 +67,18 @@ void MenuPieSlice::paint(QPainter *painter)
 {
     double lWidth = boundingRect().width();
     double lHeight = boundingRect().height();
-    double ringWidthRatio = (lWidth-2*mInnerRadius)/lWidth;
 
     painter->setPen(Qt::NoPen);
     painter->setRenderHint(QPainter::Antialiasing);
 
     QRadialGradient radialGrad(QPointF(lWidth/2, lHeight/2), lWidth/2);
     radialGrad.setColorAt(0, Qt::transparent);
-    radialGrad.setColorAt(1-2*ringWidthRatio, mColor);
+    radialGrad.setColorAt((2*mInnerRadius)/lWidth, mColor);
     radialGrad.setColorAt(1, mColor.darker(110));
 
     // outer and inner washer dimensions
     QRectF outerRect(0, 0, lWidth, lHeight); outerRect.adjust(mShadowRadius, mShadowRadius, -mShadowRadius, -mShadowRadius);
-    QRectF innerRect(lWidth*ringWidthRatio, lHeight*ringWidthRatio, lWidth*(1-2*ringWidthRatio), lHeight*(1-2*ringWidthRatio));
+    QRectF innerRect(lWidth/2-mInnerRadius, lHeight/2-mInnerRadius, 2*mInnerRadius, 2*mInnerRadius);
 
     //-------------- this is the essence of the matter -------------
     // create a path with two arcs to form the outline
