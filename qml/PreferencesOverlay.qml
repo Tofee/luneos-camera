@@ -82,7 +82,62 @@ Rectangle {
         ListElement { text: "" } // placeholder
     }
 
-    property real ringWidth: root.height*1.1 / 6.5
+    QtObject {
+        id: ringMenuProperties
+        readonly property real menuAreaHeight: root.height*0.8
+        readonly property real menuAreaWidth: menuAreaHeight
+        readonly property real ringWidth: root.height*1.1 / 6.5
+        readonly property real arcLength: Math.PI/6
+        readonly property real shadowRadius: Units.gu(0.5)
+    }
+    QtObject {
+        id: ringSubMenuProperties
+        readonly property real menuAreaHeight: ringMenuProperties.menuAreaHeight + 2*root.height/6.5
+        readonly property real menuAreaWidth: menuAreaHeight
+        readonly property real ringWidth: ringMenuProperties.ringWidth * 0.8
+        readonly property real arcLength: Math.PI/16
+        readonly property real shadowRadius: Units.gu(0.5)
+    }
+
+    // Pre-generate canvas images for the buttons
+    RadialMenuItemCanvas {
+        id: mainMenuRadialBg;
+        opacity: 0
+        height: ringMenuProperties.menuAreaHeight
+        width: ringMenuProperties.menuAreaWidth
+        ringWidth: ringMenuProperties.ringWidth;
+        arcLength: ringMenuProperties.arcLength
+        shadowRadius: ringMenuProperties.shadowRadius
+    }
+    RadialMenuItemCanvas {
+        id: mainMenuRadialSelectedBg;
+        isSelected: true
+        opacity: 0
+        height: ringMenuProperties.menuAreaHeight
+        width: ringMenuProperties.menuAreaWidth
+        ringWidth: ringMenuProperties.ringWidth;
+        arcLength: ringMenuProperties.arcLength
+        shadowRadius: ringMenuProperties.shadowRadius
+    }
+    RadialMenuItemCanvas {
+        id: subMenuRadialBg;
+        opacity: 0
+        height: ringSubMenuProperties.menuAreaHeight
+        width: ringSubMenuProperties.menuAreaWidth
+        ringWidth: ringSubMenuProperties.ringWidth;
+        arcLength: ringSubMenuProperties.arcLength
+        shadowRadius: ringSubMenuProperties.shadowRadius
+    }
+    RadialMenuItemCanvas {
+        id: subMenuRadialSelectedBg;
+        isSelected: true
+        opacity: 0
+        height: ringSubMenuProperties.menuAreaHeight
+        width: ringSubMenuProperties.menuAreaWidth
+        ringWidth: ringSubMenuProperties.ringWidth;
+        arcLength: ringSubMenuProperties.arcLength
+        shadowRadius: ringSubMenuProperties.shadowRadius
+    }
 
     ListView {
         id: menuScroller
@@ -106,16 +161,16 @@ Rectangle {
 
             model: prefsMenuModel
             delegate: MenuItemRingArc {
-                y: (root.height-height)/2
-                height: root.height*0.8
-                width: height
+                height: ringMenuProperties.menuAreaHeight
+                width: ringMenuProperties.menuAreaWidth
                 x: -width/2*1.3
+                y: (root.height-height)/2
 
                 z: 2
 
-                ringWidth: root.ringWidth;
+                backgroundImage: isSelected ? mainMenuRadialSelectedBg : mainMenuRadialBg;
 
-                arcLength: Math.PI/6
+                arcLength: ringMenuProperties.arcLength
                 arcOffset: -Math.PI/2 + index*arcLength - menuScroller.contentY*Math.PI/menuScroller.height
 
                 text: model.text
@@ -152,16 +207,16 @@ Rectangle {
             x: 0
 
             delegate: MenuItemRingArc {
-                y: (root.height-height)/2
-                height: root.height*0.8 + 2*root.height/6.5
-                width: height
+                height: ringSubMenuProperties.menuAreaHeight
+                width: ringSubMenuProperties.menuAreaWidth
                 x: -(root.height*0.8/2)*1.3 - root.height/6.5
+                y: (root.height-height)/2
 
                 z: 2
 
-                ringWidth: root.ringWidth*0.8;
+                backgroundImage: isSelected ? subMenuRadialSelectedBg : subMenuRadialBg;
 
-                arcLength: Math.PI/16
+                arcLength: ringSubMenuProperties.arcLength
                 arcOffset: -arcLength*subMenuRepeater.count/2  + index*arcLength
 
                 text: model.text
