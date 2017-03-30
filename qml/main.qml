@@ -1,8 +1,8 @@
 import QtQuick 2.6
 import QtQuick.Window 2.2
-import QtMultimedia 5.5
 
-import LunaNext.Common 0.1
+// for StackView
+import QtQuick.Controls 1.4
 
 Window {
     visible: true
@@ -10,66 +10,71 @@ Window {
     width: 600
     height: 800
 
-    Camera {
-        id: camera
+    PreferencesModel {
+        id: preferences
+    }
+    /* Model of the captured phots/videos during this session */
+    ListModel {
+        id: capturedFilesModel
 
-        captureMode: Camera.CaptureStillImage
-        position: Camera.BackFace
-
-        focus.focusMode: Camera.FocusContinuous
-
-        imageCapture {
-            onImageCaptured: {
-                lastCaptureImage.source = preview
-            }
+        function addFileToGallery(iPath)
+        {
+            capturedFilesModel.append({filepath: iPath});
+            console.log("file added: "+iPath);
         }
-
-        onError: console.warn("Camera ERROR " + errorCode + ": " + errorString);
     }
 
-    VideoOutput {
-        source: camera
+    CameraView {
+        id: cameraViewItem
+
+        width: parent.width
+        height: parent.height
+
+        y: 0
+        x: switcherListView.contentX > switcherListView.width ? switcherListView.width - switcherListView.contentX : 0
+
+        prefs: preferences
+
+        onImageCaptured: captureOverlayItem.setLastCapturedImage(preview);
+        onCaptureDone: capturedFilesModel.addFileToGallery(filepath);
+    }
+
+    ListView {
+        id: switcherListView
+
         anchors.fill: parent
-        focus: visible
-        fillMode: VideoOutput.PreserveAspectCrop
-    }
 
-    Row {
-        anchors.bottom: parent.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
+        boundsBehavior: ListView.StopAtBounds
+        orientation: ListView.Horizontal
+        currentIndex: 1
+        highlightFollowsCurrentItem: true
+        preferredHighlightBegin: 0
+        preferredHighlightEnd: switcherListView.width
+        highlightRangeMode: ListView.StrictlyEnforceRange
+        snapMode: ListView.SnapOneItem
 
-        Image {
-            id: lastCaptureImage
-            height: Units.gu(8);
-            width: Units.gu(8);
-        }
-        // Switch back/front
-        Image {
-            source: "images/flipcamera.svg"
-            height: Units.gu(5);
-            width: Units.gu(5);
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    camera.cameraState = Camera.LoadedState;
-                    camera.position = (camera.position === Camera.BackFace) ? Camera.FrontFace : Camera.BackFace
-                    camera.cameraState = Camera.ActiveState;
-                }
+        model: VisualItemModel {
+            PreferencesOverlay {
+                id: preferencesOverlay
+                height: switcherListView.height; width: switcherListView.width
+
+                prefs: preferences
             }
-        }
+            CaptureOverlay {
+                id: captureOverlayItem
+                height: switcherListView.height; width: switcherListView.width
 
-        // take a photo
-        Image {
-            source: "images/shutter.svg"
-            height: Units.gu(8);
-            width: Units.gu(8);
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    // capture the image!
-                    camera.searchAndLock();
-                    camera.imageCapture.capture();
-                }
+                camera: cameraViewItem.cameraItem
+                prefs: preferences
+
+                onGalleryButtonClicked: switcherListView.currentIndex = 2
+            }
+            /* Gallery component to visualize this session's captured media */
+            GalleryView {
+                id: galleryView
+                height: switcherListView.height; width: switcherListView.width
+
+                model: capturedFilesModel
             }
         }
     }
