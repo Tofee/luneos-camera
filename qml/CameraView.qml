@@ -85,6 +85,7 @@ Item {
         }
 
         property AdvancedCameraSettings advanced: AdvancedCameraSettings {
+            camera: cameraViewRoot.cameraItem
             hdrEnabled: prefs.hdrEnabled
             encodingQuality: prefs.encodingQuality
 
