@@ -18,6 +18,8 @@ Rectangle {
         "position": [ Camera.FrontFace, Camera.BackFace ],
         "gridEnabled": [ false, true ],
         "captureMode": [ Camera.CaptureStillImage, Camera.CaptureVideo ],
+        "photoResolutionIndex": [], // will be filled dynamically
+        "videoResolutionIndex": [], // will be filled dynamically
         "effectMode": [ 0, 1, 2, 3 ]
     })
 
@@ -45,14 +47,6 @@ Rectangle {
             ]
         }
         ListElement {
-            text: "Camera"
-            prefsKey: "position"
-            subMenuModel: [
-                ListElement { text: "Front" },
-                ListElement { text: "Back" }
-            ]
-        }
-        ListElement {
             text: "";
             imageUrl: "images/grid_lines.svg"
             prefsKey: "gridEnabled"
@@ -62,12 +56,9 @@ Rectangle {
             ]
         }
         ListElement {
-            text: "Type"
-            prefsKey: "captureMode"
-            subMenuModel: [
-                ListElement { text: ""; imageUrl: "images/shutter_stills@27.png" },
-                ListElement { text: ""; imageUrl: "images/record_video@27.png" }
-            ]
+            text: "Quality"
+            prefsKey: "photoResolutionIndex"
+            subMenuModel: [] // will be changed dynamically
         }
         ListElement {
             text: "Effect"
@@ -80,6 +71,47 @@ Rectangle {
             ]
         }
         ListElement { text: "" } // placeholder
+    }
+
+    function videoResolutionToLabel(resolution) {
+        // takes in a resolution string (e.g. 1920x1080) and returns a nicer
+        // form of it for display in the UI: "1080p"
+        return resolution.height + "p";
+    }
+    function sizeToMegapixels(size) {
+        var megapixels = (size.width * size.height) / 1000000;
+        return parseFloat(megapixels.toFixed(1))
+    }
+
+    Connections {
+        target: prefs.captureMode === Camera.CaptureStillImage ? prefs.photoResolutionOptionsModel : null
+        onModelChanged: {
+            var subMenuModel = []
+            var nbPhotoResolutions = prefs.photoResolutionOptionsModel.count;
+            var prefsMappingQuality = [];
+            for (var i=0; i<nbPhotoResolutions; ++i) {
+                subMenuModel.push({ "text": "%1MP".arg(sizeToMegapixels(prefs.photoResolutionOptionsModel.get(i))) });
+                prefsMappingQuality.push(i);
+            }
+            prefsMenuModel.get(4).prefsKey = "photoResolutionIndex";
+            prefsMenuModel.get(4).subMenuModel = subMenuModel;
+            prefsMapping["photoResolutionIndex"] = prefsMappingQuality;
+        }
+    }
+    Connections {
+        target: prefs.captureMode === Camera.CaptureVideo ? prefs.videoResolutionOptionsModel : null
+        onModelChanged: {
+            var subMenuModel = []
+            var nbVideoResolutions = prefs.videoResolutionOptionsModel.count;
+            var prefsMappingQuality = [];
+            for (var i=0; i<nbVideoResolutions; ++i) {
+                subMenuModel.push({ "text": videoResolutionToLabel(prefs.videoResolutionOptionsModel.get(i)) });
+                prefsMappingQuality.push(i);
+            }
+            prefsMenuModel.get(4).prefsKey = "videoResolutionIndex";
+            prefsMenuModel.get(4).subMenuModel = subMenuModel;
+            prefsMapping["videoResolutionIndex"] = prefsMappingQuality;
+        }
     }
 
     QtObject {
