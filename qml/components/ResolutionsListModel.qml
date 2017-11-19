@@ -8,9 +8,9 @@ ListModel {
         return -1;
     }
     function getAsSize(i) {
-        if(typeof i === 'undefined' || i<0 || i>=count) return null;
+        if(typeof i === 'undefined' || i<0 || i>=count) return Qt.size(-1,-1);
         var elt=get(i);
-        if(!elt) return null;
+        if(!elt) return Qt.size(-1,-1);
         return Qt.size(elt.width, elt.height);
     }
     function appendSize(size) {
