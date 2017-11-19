@@ -9,7 +9,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
 # Configure camera output directory
-set(CAMERA_OUTPUT_DIR "/media/internal/camera")
+set(CAMERA_OUTPUT_DIR "/media/internal/DCIM")
 set(APP_DIR ${CMAKE_CURRENT_BINARY_DIR}/org.webosports.app.camera)
 
 if(UNIX)
@@ -24,7 +24,7 @@ if(UNIX)
         # also check that the root path is not the fallback one
         if(NOT "${WEBOS_INSTALL_ROOT}" STREQUAL "/usr/local/webos")
             set(APP_DIR ${WEBOS_INSTALL_WEBOS_APPLICATIONSDIR}/org.webosports.app.camera)
-            set(CAMERA_OUTPUT_DIR "/media/internal/camera")
+            set(CAMERA_OUTPUT_DIR "/media/internal/DCIM")
         endif()
     endif()
 else()
