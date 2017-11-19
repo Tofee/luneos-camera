@@ -11,6 +11,9 @@ Rectangle {
     color: "transparent"
     //color: "#E5E5E5"
 
+    readonly property real menuInnerRadius: ringMenuProperties.menuAreaWidth/2 - ringMenuProperties.ringWidth
+    readonly property real menuXOffset: ringMenuProperties.menuXOffset
+
     property QtObject prefs;
     property var prefsMapping: ({
         "flashMode": [ Camera.FlashAuto, Camera.FlashOff, Camera.FlashOn ],
@@ -120,7 +123,7 @@ Rectangle {
         readonly property real menuAreaWidth: menuAreaHeight
         readonly property real ringWidth: root.height*1.1 / 6.5
         readonly property real arcLength: Math.PI/6
-        readonly property real shadowRadius: Units.gu(0.5)
+        readonly property real menuXOffset: -(menuAreaWidth/2)*1.3
     }
     QtObject {
         id: ringSubMenuProperties
@@ -128,47 +131,7 @@ Rectangle {
         readonly property real menuAreaWidth: menuAreaHeight
         readonly property real ringWidth: ringMenuProperties.ringWidth * 0.8
         readonly property real arcLength: Math.PI/16
-        readonly property real shadowRadius: Units.gu(0.5)
-    }
-
-    // Pre-generate canvas images for the buttons
-    RadialMenuItemCanvas {
-        id: mainMenuRadialBg;
-        opacity: 0
-        height: ringMenuProperties.menuAreaHeight
-        width: ringMenuProperties.menuAreaWidth
-        ringWidth: ringMenuProperties.ringWidth;
-        arcLength: ringMenuProperties.arcLength
-        shadowRadius: ringMenuProperties.shadowRadius
-    }
-    RadialMenuItemCanvas {
-        id: mainMenuRadialSelectedBg;
-        isSelected: true
-        opacity: 0
-        height: ringMenuProperties.menuAreaHeight
-        width: ringMenuProperties.menuAreaWidth
-        ringWidth: ringMenuProperties.ringWidth;
-        arcLength: ringMenuProperties.arcLength
-        shadowRadius: ringMenuProperties.shadowRadius
-    }
-    RadialMenuItemCanvas {
-        id: subMenuRadialBg;
-        opacity: 0
-        height: ringSubMenuProperties.menuAreaHeight
-        width: ringSubMenuProperties.menuAreaWidth
-        ringWidth: ringSubMenuProperties.ringWidth;
-        arcLength: ringSubMenuProperties.arcLength
-        shadowRadius: ringSubMenuProperties.shadowRadius
-    }
-    RadialMenuItemCanvas {
-        id: subMenuRadialSelectedBg;
-        isSelected: true
-        opacity: 0
-        height: ringSubMenuProperties.menuAreaHeight
-        width: ringSubMenuProperties.menuAreaWidth
-        ringWidth: ringSubMenuProperties.ringWidth;
-        arcLength: ringSubMenuProperties.arcLength
-        shadowRadius: ringSubMenuProperties.shadowRadius
+        readonly property real menuXOffset: -(ringMenuProperties.menuAreaWidth/2)*1.3 - root.height/6.5
     }
 
     ListView {
@@ -195,12 +158,12 @@ Rectangle {
             delegate: MenuItemRingArc {
                 height: ringMenuProperties.menuAreaHeight
                 width: ringMenuProperties.menuAreaWidth
-                x: -width/2*1.3
+                x: ringMenuProperties.menuXOffset
                 y: (root.height-height)/2
 
                 z: 2
 
-                backgroundImage: isSelected ? mainMenuRadialSelectedBg : mainMenuRadialBg;
+                innerRadius: width/2 - Units.gu(6.7);
 
                 arcLength: ringMenuProperties.arcLength
                 arcOffset: -Math.PI/2 + index*arcLength - menuScroller.contentY*Math.PI/menuScroller.height
@@ -246,7 +209,7 @@ Rectangle {
 
                 z: 2
 
-                backgroundImage: isSelected ? subMenuRadialSelectedBg : subMenuRadialBg;
+                innerRadius: width/2 - Units.gu(6);
 
                 arcLength: ringSubMenuProperties.arcLength
                 arcOffset: -arcLength*subMenuRepeater.count/2  + index*arcLength
@@ -259,6 +222,7 @@ Rectangle {
             }
         }
     }
+
 /*
     ListView {
         id: subMenuListView

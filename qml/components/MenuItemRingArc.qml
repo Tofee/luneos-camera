@@ -1,25 +1,30 @@
 import QtQuick 2.0
+import QtGraphicalEffects 1.0
 
 import LunaNext.Common 0.1
 
+import CameraApp 0.1
+
 Item {
     id: root
-    property real arcLength: Math.PI/3
     property real arcOffset: 0
-    property real ringWidth: Units.gu(6);
+    property real arcLength: Math.PI/3;
+    property real innerRadius: Units.gu(6);
 
-    property Item backgroundImage
+    property color innerGradientColor: isSelected ? Qt.rgba(0.42, 0.63, 0.76, 1.0) : Qt.rgba(0.93, 0.93, 0.93, 0.67);
+    property color outerGradientColor: isSelected ? Qt.rgba(0.11, 0.28, 0.44, 1.0) : Qt.rgba(0.81, 0.81, 0.81, 0.60);
 
     property ExclusiveGroup group: ExclusiveGroup { currentIndexInGroup: -1 }
     property int indexInGroup: 0
     property bool isSelected: group.currentIndexInGroup === root.indexInGroup
+   // onIsSelectedChanged: canvasItem.requestPaint();
 
     property string text: ""
     property string menuImageUrl: ""
 
     signal clicked
 
-    ShaderEffectSource {
+    Item {
         // draws an arc of the desired arc-length
         id: canvasItem
         anchors.fill: parent
@@ -28,16 +33,33 @@ Item {
         rotation: root.arcOffset*180/Math.PI
         transformOrigin: Item.Center
 
-        sourceItem: backgroundImage
-
         property real outterRadius: canvasItem.width/2-Units.gu(0.5)
-        property real innerRadius: outterRadius-ringWidth
+
+        MenuPieSlice {
+            id: thePieSlice
+            anchors.fill: parent
+            visible: false
+
+            innerRadius: root.innerRadius
+            arcLength: root.arcLength*180/Math.PI
+            shadowRadius: pieSliceDropShadow.radius
+        }
+        DropShadow {
+            id: pieSliceDropShadow
+            anchors.fill: thePieSlice
+            horizontalOffset: 0
+            verticalOffset: 0
+            radius: Units.gu(0.5)
+            samples: 6
+            color: "#333"
+            source: thePieSlice
+        }
 
         Item {
-            x: canvasItem.width/2 + Math.cos(arcLength)*canvasItem.innerRadius
+            x: canvasItem.width/2 + Math.cos(root.arcLength)*root.innerRadius
             y: canvasItem.height/2
-            width: canvasItem.outterRadius - Math.cos(arcLength)*canvasItem.innerRadius
-            height: Math.tan(arcLength)*canvasItem.innerRadius
+            width: canvasItem.outterRadius - Math.cos(root.arcLength)*root.innerRadius
+            height: Math.tan(root.arcLength)*root.innerRadius
             rotation: -canvasItem.rotation
 
             Text {
@@ -51,7 +73,7 @@ Item {
             Image {
                 visible: menuImageUrl !== ""
 
-                height: 0.75*Math.cos(arcLength)*Math.min(parent.width, parent.height);
+                height: 0.75*Math.cos(root.arcLength)*Math.min(parent.width, parent.height);
                 width: height
                 anchors.centerIn: parent
                 fillMode: Image.PreserveAspectFit
