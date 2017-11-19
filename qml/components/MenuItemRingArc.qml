@@ -11,13 +11,11 @@ Item {
     property real arcLength: Math.PI/3;
     property real innerRadius: Units.gu(6);
 
-    property color innerGradientColor: isSelected ? Qt.rgba(0.42, 0.63, 0.76, 1.0) : Qt.rgba(0.93, 0.93, 0.93, 0.67);
-    property color outerGradientColor: isSelected ? Qt.rgba(0.11, 0.28, 0.44, 1.0) : Qt.rgba(0.81, 0.81, 0.81, 0.60);
+    property color gradientMainColor: isSelected ? Qt.rgba(0.42, 0.63, 0.76, 1.0) : Qt.rgba(0.93, 0.93, 0.93, 0.67);
 
     property ExclusiveGroup group: ExclusiveGroup { currentIndexInGroup: -1 }
     property int indexInGroup: 0
     property bool isSelected: group.currentIndexInGroup === root.indexInGroup
-   // onIsSelectedChanged: canvasItem.requestPaint();
 
     property string text: ""
     property string menuImageUrl: ""
@@ -43,6 +41,7 @@ Item {
             innerRadius: root.innerRadius
             arcLength: root.arcLength*180/Math.PI
             shadowRadius: pieSliceDropShadow.radius
+            color: gradientMainColor
         }
         DropShadow {
             id: pieSliceDropShadow

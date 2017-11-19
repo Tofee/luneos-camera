@@ -9,7 +9,8 @@
 MenuPieSlice::MenuPieSlice():
     mArcLength(30),
     mInnerRadius(50),
-    mShadowRadius(5)
+    mShadowRadius(5),
+    mColor(QColor(238, 238, 238, 172))
 {
 }
 
@@ -24,6 +25,11 @@ double MenuPieSlice::innerRadius() const
 double MenuPieSlice::shadowRadius() const
 {
     return mShadowRadius;
+}
+
+QColor MenuPieSlice::color() const
+{
+    return mColor;
 }
 
 void MenuPieSlice::setArcLength(double newArcLength)
@@ -47,6 +53,14 @@ void MenuPieSlice::setShadowRadius(double newShadowRadius)
         emit shadowRadiusChanged();
     }
 }
+void MenuPieSlice::setColor(QColor newColor)
+{
+    if(newColor != mColor) {
+        mColor = newColor;
+        emit colorChanged();
+        update();
+    }
+}
 
 void MenuPieSlice::paint(QPainter *painter)
 {
@@ -59,8 +73,8 @@ void MenuPieSlice::paint(QPainter *painter)
 
     QRadialGradient radialGrad(QPointF(lWidth/2, lHeight/2), lWidth/2);
     radialGrad.setColorAt(0, Qt::transparent);
-    radialGrad.setColorAt(1-2*ringWidthRatio, QColor(238, 238, 238, 172));
-    radialGrad.setColorAt(1, QColor(207, 207, 207, 154));
+    radialGrad.setColorAt(1-2*ringWidthRatio, mColor);
+    radialGrad.setColorAt(1, mColor.darker(110));
 
     // outer and inner washer dimensions
     QRectF outerRect(0, 0, lWidth, lHeight); outerRect.adjust(mShadowRadius, mShadowRadius, -mShadowRadius, -mShadowRadius);
