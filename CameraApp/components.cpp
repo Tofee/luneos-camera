@@ -23,6 +23,7 @@
 #include "advancedcamerasettings.h"
 #include "fileoperations.h"
 #include "foldersmodel.h"
+#include "pieslice.h"
 #include "storagemonitor.h"
 #include "storagelocations.h"
 
@@ -41,6 +42,7 @@ void Components::registerTypes(const char *uri)
     qmlRegisterType<AdvancedCameraSettings>(uri, 0, 1, "AdvancedCameraSettings");
     qmlRegisterType<FileOperations>(uri, 0, 1, "FileOperations");
     qmlRegisterType<FoldersModel>(uri, 0, 1, "FoldersModel");
+    qmlRegisterType<MenuPieSlice>(uri, 0, 1, "MenuPieSlice");
     qmlRegisterType<StorageMonitor>(uri, 0, 1, "StorageMonitor");
     qmlRegisterSingletonType<StorageLocations>(uri, 0, 1, "StorageLocations", StorageLocations_singleton_factory);
 }
