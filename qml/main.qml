@@ -71,6 +71,7 @@ Window {
                 PropertyChanges { target: preferencesOverlay; opacity: 0; scale: 0 }
             },
             State {
+                when: mouseArea.drag.active
                 name: "visible"
                 PropertyChanges { target: preferencesOverlay; opacity: 1; scale: 1 }
             }
@@ -78,31 +79,38 @@ Window {
 
         Behavior on scale { NumberAnimation { duration: 300 } }
         Behavior on opacity { NumberAnimation { duration: 200 } }
-
-        onMenuInnerRadiusChanged: console.log("menuInnerRadius = "+menuInnerRadius);
     }
     Rectangle {
+        id: touchArea
         x: preferencesOverlay.menuXOffset/1.5
-        anchors.verticalCenter: parent.verticalCenter
+        y: parent.height/2 - height/2
         width: preferencesOverlay.menuInnerRadius*2
         height: width
         radius: width/2
         color: "grey"
-        opacity: 0.3
+        opacity: mouseArea.drag.active ? 0 : 0.2
+        Behavior on opacity { NumberAnimation { duration: 200 } }
+
+        Drag.active: mouseArea.drag.active
+        Drag.hotSpot.x: mouseArea.lastPressedX
+        Drag.hotSpot.y: mouseArea.lastPressedY
 
         MouseArea {
+            id: mouseArea
+            property real lastPressedX: 0
+            property real lastPressedY: 0
             anchors.fill: parent
-            onClicked: {
-                if( preferencesOverlay.state === "visible" )
-                    preferencesOverlay.state = "hidden";
-                else
-                    preferencesOverlay.state = "visible";
+            drag.target: parent
+            onPressed: {
+                lastPressedX = mouse.x;
+                lastPressedY = mouse.y;
+            }
+            onReleased: {
+                touchArea.x = preferencesOverlay.menuXOffset/1.5;
+                touchArea.y = preferencesOverlay.height/2 - touchArea.height/2
             }
         }
-
-        onXChanged: console.log("x="+x);
     }
-
     /*
     ListView {
         id: switcherListView

@@ -79,6 +79,13 @@ Item {
                 source: menuImageUrl
             }
 
+            DropArea {
+                anchors.fill: parent
+                onEntered: {
+                    group.currentIndexInGroup = root.indexInGroup;
+                    root.clicked()
+                }
+            }
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
