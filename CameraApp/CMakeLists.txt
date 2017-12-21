@@ -4,6 +4,7 @@ set(plugin_SRCS
     advancedcamerasettings.cpp
     fileoperations.cpp
     foldersmodel.cpp
+    pieslice.cpp
     storagemonitor.cpp
     storagelocations.cpp
     )
@@ -13,6 +14,7 @@ set(plugin_HDRS
     advancedcamerasettings.h
     fileoperations.h
     foldersmodel.h
+    pieslice.h
     storagemonitor.h
     storagelocations.h
     )

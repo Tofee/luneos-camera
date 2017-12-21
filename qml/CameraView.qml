@@ -31,22 +31,12 @@ Item {
         focus.focusMode: Camera.FocusContinuous
 
         Component.onCompleted: {
-            var hasPhotoResolutionSetting = (prefs.photoResolution !== Qt.size(0,0));
-            // FIXME: use camera.advanced.imageCaptureResolution instead of camera.imageCapture.resolution
-            // because the latter is not updated when the backend changes the resolution
-            prefs.setPhotoResolution(camera.advanced.imageCaptureResolution);
-            prefs.videoResolution = camera.advanced.videoRecorderResolution;
             updateResolutionOptions();
-
-            // If no resolution has ever been chosen, select one automatically
-            if (!hasPhotoResolutionSetting) {
-                prefs.setPhotoResolution(prefs.getAutomaticResolution(camera.advanced.maximumResolution, camera.advanced.fittingResolution));
-            }
         }
 
 
         imageCapture {
-            resolution: prefs.photoResolution
+            resolution: prefs.photoResolutionOptionsModel.getAsSize(prefs.photoResolutionIndex)
 
             onResolutionChanged: {
                 // FIXME: this is a necessary workaround because:
@@ -69,7 +59,7 @@ Item {
         }
         videoRecorder {
             outputLocation: StorageLocations.videosLocation;
-            resolution: prefs.videoResolution
+            resolution: prefs.videoResolutionOptionsModel.getAsSize(prefs.videoResolutionIndex)
 
             onResolutionChanged: {
                 // FIXME: see workaround setting camera.viewfinder.resolution above
@@ -85,33 +75,24 @@ Item {
         }
 
         property AdvancedCameraSettings advanced: AdvancedCameraSettings {
+            camera: cameraViewRoot.cameraItem
             hdrEnabled: prefs.hdrEnabled
             encodingQuality: prefs.encodingQuality
 
             onVideoSupportedResolutionsChanged: prefs.updateVideoResolutionOptions(camera.advanced.videoSupportedResolutions);
-            onFittingResolutionChanged: prefs.updatePhotoResolutionOptions(camera.advanced.maximumResolution, camera.advanced.fittingResolution, camera.deviceId);
-            onMaximumResolutionChanged: prefs.updatePhotoResolutionOptions(camera.advanced.maximumResolution, camera.advanced.fittingResolution, camera.deviceId);
+            onFittingResolutionChanged: prefs.updatePhotoResolutionOptions(camera.advanced.maximumResolution, camera.advanced.fittingResolution);
+            onMaximumResolutionChanged: prefs.updatePhotoResolutionOptions(camera.advanced.maximumResolution, camera.advanced.fittingResolution);
         }
 
         function updateResolutionOptions() {
             prefs.updateVideoResolutionOptions(camera.advanced.videoSupportedResolutions);
-            prefs.updatePhotoResolutionOptions(camera.advanced.maximumResolution, camera.advanced.fittingResolution, camera.deviceId);
+            prefs.updatePhotoResolutionOptions(camera.advanced.maximumResolution, camera.advanced.fittingResolution);
             // FIXME: see workaround setting camera.viewfinder.resolution above
             camera.viewfinder.resolution = camera.advanced.resolution;
         }
 
         onDeviceIdChanged: {
-            var hasPhotoResolutionSetting = (prefs.photoResolution !== Qt.size(0,0));
-            // FIXME: use camera.advanced.imageCaptureResolution instead of camera.imageCapture.resolution
-            // because the latter is not updated when the backend changes the resolution
-            prefs.setPhotoResolution(camera.advanced.imageCaptureResolution);
-            prefs.videoResolution = camera.advanced.videoRecorderResolution;
             updateResolutionOptions();
-
-            // If no resolution has ever been chosen, select one automatically
-            if (!hasPhotoResolutionSetting) {
-                prefs.setPhotoResolution(prefs.getAutomaticResolution(camera.advanced.maximumResolution, camera.advanced.fittingResolution));
-            }
         }
 
         onCaptureModeChanged: {

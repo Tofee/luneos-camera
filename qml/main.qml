@@ -1,8 +1,9 @@
-import QtQuick 2.6
+import QtQuick 2.9
 import QtQuick.Window 2.2
 
-// for StackView
-import QtQuick.Controls 1.4
+import LunaNext.Common 0.1
+
+import "components"
 
 Window {
     visible: true
@@ -30,52 +31,30 @@ Window {
         width: parent.width
         height: parent.height
 
-        y: 0
-        x: switcherListView.contentX > switcherListView.width ? switcherListView.width - switcherListView.contentX : 0
-
         prefs: preferences
 
         onImageCaptured: captureOverlayItem.setLastCapturedImage(preview);
         onCaptureDone: capturedFilesModel.addFileToGallery(filepath);
     }
 
-    ListView {
-        id: switcherListView
+    CaptureOverlay {
+        id: captureOverlayItem
 
-        anchors.fill: parent
+        width: parent.width
+        height: parent.height
 
-        boundsBehavior: ListView.StopAtBounds
-        orientation: ListView.Horizontal
-        currentIndex: 1
-        highlightFollowsCurrentItem: true
-        preferredHighlightBegin: 0
-        preferredHighlightEnd: switcherListView.width
-        highlightRangeMode: ListView.StrictlyEnforceRange
-        snapMode: ListView.SnapOneItem
+        camera: cameraViewItem.cameraItem
+        prefs: preferences
 
-        model: VisualItemModel {
-            PreferencesOverlay {
-                id: preferencesOverlay
-                height: switcherListView.height; width: switcherListView.width
+        onGalleryButtonClicked: switcherListView.currentIndex = 2
+    }
 
-                prefs: preferences
-            }
-            CaptureOverlay {
-                id: captureOverlayItem
-                height: switcherListView.height; width: switcherListView.width
+    PreferencesOverlay {
+        id: preferencesOverlay
 
-                camera: cameraViewItem.cameraItem
-                prefs: preferences
+        width: parent.width
+        height: parent.height
 
-                onGalleryButtonClicked: switcherListView.currentIndex = 2
-            }
-            /* Gallery component to visualize this session's captured media */
-            GalleryView {
-                id: galleryView
-                height: switcherListView.height; width: switcherListView.width
-
-                model: capturedFilesModel
-            }
-        }
+        prefs: preferences
     }
 }
