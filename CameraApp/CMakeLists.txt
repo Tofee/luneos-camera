@@ -26,8 +26,11 @@ file(COPY qmldir DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 target_link_libraries(camera-qml
     ${Qt5Qml_LIBRARIES}
+    ${Qt6Qml_LIBRARIES}
     ${Qt5Quick_LIBRARIES}
+    ${Qt6Quick_LIBRARIES}
     ${Qt5Multimedia_LIBRARIES}
+    ${Qt6Multimedia_LIBRARIES}
     )
 
 install(TARGETS camera-qml DESTINATION ${PLUGIN_DIR})
