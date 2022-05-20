@@ -32,7 +32,7 @@ else()
     set(CAMERA_OUTPUT_DIR "C:/temp/luneos-camera")
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden -Wall -std=c++0x")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden -Wall -std=c++1z")
 add_definitions(-DCAMERA_OUTPUT_DIR="${CAMERA_OUTPUT_DIR}")
 
 # Standard install paths. Needs to be set before finding packages.
