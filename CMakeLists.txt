@@ -38,10 +38,7 @@ add_definitions(-DCAMERA_OUTPUT_DIR="${CAMERA_OUTPUT_DIR}")
 # Standard install paths. Needs to be set before finding packages.
 include(GNUInstallDirs)
 
-find_package(Qt6 COMPONENTS Qml Quick Multimedia Gui)
-if (NOT Qt6_FOUND)
-    find_package(Qt5 5.15 REQUIRED COMPONENTS Qml Quick Multimedia Gui)
-endif()
+find_package(Qt6 REQUIRED COMPONENTS Qml Quick Multimedia Gui)
 
 set(APP_DATA appinfo.json icon.png icon-256x256.png)
 set(PLUGIN_DIR ${APP_DIR}/CameraApp)
