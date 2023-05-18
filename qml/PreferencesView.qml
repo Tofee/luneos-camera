@@ -1,7 +1,7 @@
 import QtQuick 2.0
-import QtMultimedia 5.5
 import QtQml.Models 2.2
-import QtGraphicalEffects 1.0
+import QtMultimedia
+import Qt5Compat.GraphicalEffects
 
 import LunaNext.Common 0.1
 
@@ -24,7 +24,7 @@ Item {
         "selfTimerDelay": [ 0, 3, 10, 15 ],
         "position": [ Camera.FrontFace, Camera.BackFace ],
         "gridEnabled": [ false, true ],
-        "captureMode": [ Camera.CaptureStillImage, Camera.CaptureVideo ],
+        "captureMode": [ PreferencesModel.CaptureStillImage, PreferencesModel.CaptureVideo ],
         "photoResolutionIndex": [], // will be filled dynamically
         "videoResolutionIndex": [], // will be filled dynamically
         "effectMode": [ 0, 1, 2, 3 ]
@@ -98,8 +98,8 @@ Item {
     }
 
     Connections {
-        target: prefs.captureMode === Camera.CaptureStillImage ? prefs.photoResolutionOptionsModel : null
-        onModelChanged: {
+        target: prefs.captureMode === PreferencesModel.CaptureMode.CaptureStillImage ? prefs.photoResolutionOptionsModel : null
+        function onModelChanged() {
             var subMenuModel = []
             var nbPhotoResolutions = prefs.photoResolutionOptionsModel.count;
             var prefsMappingQuality = [];
@@ -113,8 +113,8 @@ Item {
         }
     }
     Connections {
-        target: prefs.captureMode === Camera.CaptureVideo ? prefs.videoResolutionOptionsModel : null
-        onModelChanged: {
+        target: prefs.captureMode === PreferencesModel.CaptureMode.CaptureVideo ? prefs.videoResolutionOptionsModel : null
+        function onModelChanged() {
             var subMenuModel = []
             var nbVideoResolutions = prefs.videoResolutionOptionsModel.count;
             var prefsMappingQuality = [];
@@ -341,8 +341,8 @@ Item {
                 text: model.text
             }
     }
-*/
-    /*
+
+
     Column {
         width: parent.width
         spacing: Units.gu(0.5)
@@ -356,7 +356,7 @@ Item {
 
             ExclusiveGroup {
                 id: exclusiveGroupSide
-                readonly property var prefsMapping: [ Camera.FrontFace, Camera.BackFace ]
+                readonly property var prefsMapping: [ CameraDevice.FrontFace, CameraDevice.BackFace ]
                 currentIndexInGroup: prefsMapping.indexOf(prefs.position);
                 onCurrentIndexInGroupChanged: prefs.position = prefsMapping[currentIndexInGroup]
             }
@@ -424,7 +424,7 @@ Item {
 
             ExclusiveGroup {
                 id: exclusiveGroupPhotoVideo
-                readonly property var prefsMapping: [ Camera.CaptureStillImage, Camera.CaptureVideo ]
+                readonly property var prefsMapping: [ PreferencesModel.CaptureMode.CaptureStillImage, PreferencesModel.CaptureMode.CaptureVideo ]
                 currentIndexInGroup: prefsMapping.indexOf(prefs.captureMode);
                 onCurrentIndexInGroupChanged: prefs.captureMode = prefsMapping[currentIndexInGroup]
             }
@@ -471,7 +471,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             height: Units.gu(6)
 
-            visible: prefs.captureMode === Camera.CaptureVideo
+            visible: prefs.captureMode === PreferencesModel.CaptureMode.CaptureVideo
 
             ExclusiveGroup {
                 id: exclusiveGroupFlashVideo
@@ -499,7 +499,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             height: Units.gu(6)
 
-            visible: prefs.captureMode === Camera.CaptureStillImage && prefs.photoResolutionOptionsModel.count>0
+            visible: prefs.captureMode === PreferencesModel.CaptureMode.CaptureStillImage && prefs.photoResolutionOptionsModel.count>0
 
             function sizeToMegapixels(size) {
                 var megapixels = (size.width * size.height) / 1000000;
