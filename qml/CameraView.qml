@@ -40,10 +40,11 @@ Item {
                 captureSession: captureSession
                 hdrEnabled: prefs.hdrEnabled
                 encodingQuality: prefs.encodingQuality
-
+                /*
                 onVideoSupportedResolutionsChanged: prefs.updateVideoResolutionOptions(camera.advanced.videoSupportedResolutions);
                 onFittingResolutionChanged: prefs.updatePhotoResolutionOptions(camera.advanced.maximumResolution, camera.advanced.fittingResolution);
                 onMaximumResolutionChanged: prefs.updatePhotoResolutionOptions(camera.advanced.maximumResolution, camera.advanced.fittingResolution);
+                */
             }
 
             function updateResolutionOptions() {
@@ -53,8 +54,9 @@ Item {
                 camera.cameraFormat.resolution = camera.advanced.resolution;
             }
 
+
             Component.onCompleted: {
-                updateResolutionOptions();
+                //updateResolutionOptions();
 
                 console.log("cameraDevice: " + JSON.stringify(camera.cameraDevice));
                 console.log("camera format: " + JSON.stringify(camera.cameraFormat));
@@ -124,7 +126,6 @@ Item {
     VideoOutput {
         id: videoOutputView
         anchors.fill: parent
-        //focus: visible
         fillMode: VideoOutput.PreserveAspectCrop
 
         //orientation: camera.position === Camera.BackFace ? -camera.orientation : camera.orientation
