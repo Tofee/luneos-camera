@@ -1,4 +1,5 @@
-import QtQuick 2.9
+import QtQuick
+import QtQuick.Controls
 import Eos.Window 0.1
 
 import "components"
@@ -38,24 +39,27 @@ WebOSWindow {
                        }
     }
 
-    CaptureOverlay {
-        id: captureOverlayItem
+    SwipeView {
+        id: switcherListView
+
+        currentIndex: 0
 
         width: parent.width
         height: parent.height
 
-        captureSession: cameraViewItem.captureSessionItem
-        prefs: preferences
+        CaptureOverlay {
+            id: captureOverlayItem
 
-//        onGalleryButtonClicked: switcherListView.currentIndex = 2
-    }
+            captureSession: cameraViewItem.captureSessionItem
+            prefs: preferences
 
-    PreferencesOverlay {
-        id: preferencesOverlay
+    //        onGalleryButtonClicked: switcherListView.currentIndex = 2
+        }
 
-        width: parent.width
-        height: parent.height
+        PreferencesView {
+            id: preferencesOverlay
 
-        prefs: preferences
+            prefs: preferences
+        }
     }
 }
